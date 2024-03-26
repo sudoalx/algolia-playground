@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algolia search test</title>
+    <!-- search only version -->
+    <script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.22.1/dist/algoliasearch-lite.umd.js"
+        integrity="sha256-pxkGFjfnFWYGOtV9uhCWK/spKiGS0Z7gVDKYm39LyfM=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+    <div id="app">
+        <h1>Search</h1>
+        <input type="text" id="search" placeholder="Search">
+        <ul id="results"></ul>
+    </div>
+    <script>
+        const app = document.getElementById('app');
+        const results = document.getElementById('results');
+        const search = document.getElementById('search');
+        const algolia = algoliasearch('7AJPG71FVN', 'f65b65af87861736fc64ef02aba8a8d8');
+        const index = algolia.initIndex('dev_EMPLOYEES');
+
+        search.addEventListener('input', () => {
+            index.search(search.value)
+                .then(result => {
+                    console.log(result.hits);
+                    const hits = result.hits.map(hit => `
+                <li>
+                        <h3>${hit._highlightResult.firstname.value.replaceAll("em", "mark")} ${hit._highlightResult.lastname.value.replaceAll("em", "mark")}</h3>
+                        <p>${hit._highlightResult.email.value.replaceAll("em", "mark")}</p>
+                    </li> 
+                `)
+                    results.innerHTML = hits.join('')
+                })
+        })
+
+    </script>
+</body>
+
+</html>
