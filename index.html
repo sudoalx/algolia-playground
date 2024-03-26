@@ -22,16 +22,17 @@
         const results = document.getElementById('results');
         const search = document.getElementById('search');
         const algolia = algoliasearch('7AJPG71FVN', 'f65b65af87861736fc64ef02aba8a8d8');
-        const index = algolia.initIndex('dev_EMPLOYEES');
+        const index = algolia.initIndex('dev_PRODUCTS');
 
         search.addEventListener('input', () => {
             index.search(search.value)
                 .then(result => {
                     console.log(result.hits);
                     const hits = result.hits.map(hit => `
-                <li>
-                        <h3>${hit._highlightResult.firstname.value.replaceAll("em", "mark")} ${hit._highlightResult.lastname.value.replaceAll("em", "mark")}</h3>
-                        <p>${hit._highlightResult.email.value.replaceAll("em", "mark")}</p>
+                    <li>
+                        <img src="${hit.image}" alt="${hit.name}">
+                        <h3>${hit._highlightResult.name.value.replaceAll("em", "mark")}</h3>
+                        <p>${hit._highlightResult.description.value.replaceAll("em", "mark")}</p>
                     </li> 
                 `)
                     results.innerHTML = hits.join('')

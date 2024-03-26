@@ -7,9 +7,8 @@ const APP_ID = process.env.APP_ID;
 const API_KEY = process.env.API_KEY;
 
 const algoliaClient = algoliasearch(APP_ID, API_KEY);
-const pgClient = new Client({ database: 'postgres' });
 
-const index = algoliaClient.initIndex('dev_EMPLOYEES');
+const index = algoliaClient.initIndex('dev_PRODUCTS');
 
 
 // Save from db
@@ -18,7 +17,7 @@ const saveFromDB = async () => {
     const pgConfig = {
         user: 'postgres',
         password: 'postgres',
-        // database: 'postgres'
+        database: 'postgres'
     };
     const pgClient = new Client(pgConfig);
     await pgClient.connect();
@@ -38,20 +37,23 @@ const saveUsingChunks = async () => {
     const pgConfig = {
         user: 'postgres',
         password: 'postgres',
+        database: 'postgres'
     };
     const pgClient = new Client(pgConfig);
     await pgClient.connect();
 
     const queryResult = await pgClient.query('SELECT * FROM EMPLOYEE');
-    const result = await index.saveObjects(queryResult.rows, { autoGenerateObjectIDIfNotExist: true });
-    console.log(result);
+    const chunks = _.chunk(queryResult.rows, 100);
+    chunks.forEach(async (chunk) => {
+        await index.saveObjects(chunk, { autoGenerateObjectIDIfNotExist: true });
+    })
 
     pgClient.end()
 }
 
-// Save one employee object
-const saveOneEmployee = async () => {
-    const employee = {
+// Save one entry object
+const saveOneEntry = async () => {
+    const entry = {
         "id": 2,
         "firstName": "Rhoda",
         "lastName": "Trevarthen",
@@ -62,22 +64,28 @@ const saveOneEmployee = async () => {
         "salaryCurrency": "BRL",
         "salary": 9908.96
     }
-    const result = await index.saveObject(employee, {
+    const result = await index.saveObject(entry, {
         autoGenerateObjectIDIfNotExist: true
     });
     console.log(result);
 }
 
-// Save multiple employees from a json file
-const saveMultipleEmployees = async () => {
-    const employees = require('./employees.json')
-    const result = await index.saveObjects(employees, {
+// Save multiple entries from a json file
+const saveMultipleEntries = async () => {
+    const products = require('./data/products.json')
+    const result = await index.saveObjects(products, {
         autoGenerateObjectIDIfNotExist: true
     });
     console.log(result);
 }
 
-// saveOneEmployee().catch(console.error);
-// saveMultipleEmployees().catch(console.error);
-// saveFromDB().catch(console.error);
-saveUsingChunks().catch(console.error);
+// Save multiple entries with chunks from a json file
+const saveMultipleEntriesWithChunks = async () => {
+    const products = require('./data/products.json')
+    const chunks = _.chunk(products, 100);
+    chunks.forEach(async (chunk) => {
+        await index.saveObjects(chunk, { autoGenerateObjectIDIfNotExist: true });
+    })
+}
+
+saveMultipleEntriesWithChunks().catch(console.error);
