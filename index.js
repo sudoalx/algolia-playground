@@ -11,7 +11,7 @@ const initConfig = async () => {
 
     const index = algoliaClient.initIndex('dev_PRODUCTS');
     await index.setSettings({
-        attributesForFaceting: ['price_range', 'brand', 'type'],
+        hitsPerPage: 10,
     });
 }
 
@@ -93,7 +93,7 @@ const saveMultipleEntriesWithChunks = async () => {
 }
 
 const main = async () => {
-    initConfig();
+    initConfig().catch(console.error);
 }
 
 main();

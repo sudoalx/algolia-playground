@@ -31,10 +31,7 @@
 
         search.addEventListener('input', () => {
             index.search(search.value, {
-                facetFilters: [
-                    ['price_range:1 - 50', 'price_range:200 - 500'],
-                    ['brand:Apple', 'brand:Samsung']
-                ]
+                hitsPerPage: 5,
             })
                 .then(result => {
                     const hits = result.hits.map(hit => `
