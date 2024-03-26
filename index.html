@@ -13,30 +13,41 @@
 <body>
 
     <div id="app">
-        <h1>Search</h1>
+        <h1>Search products...</h1>
         <input type="text" id="search" placeholder="Search">
+        <ul id="filters">
+        </ul>
+        <h2>Results:</h2>
         <ul id="results"></ul>
     </div>
     <script>
         const app = document.getElementById('app');
         const results = document.getElementById('results');
+        const filters = document.getElementById('filters');
         const search = document.getElementById('search');
         const algolia = algoliasearch('7AJPG71FVN', 'f65b65af87861736fc64ef02aba8a8d8');
         const index = algolia.initIndex('dev_PRODUCTS');
 
+
         search.addEventListener('input', () => {
-            index.search(search.value)
+            index.search(search.value, {
+                facetFilters: [
+                    ['price_range:1 - 50', 'price_range:200 - 500'],
+                    ['brand:Apple', 'brand:Samsung']
+                ]
+            })
                 .then(result => {
-                    console.log(result.hits);
                     const hits = result.hits.map(hit => `
                     <li>
                         <img src="${hit.image}" alt="${hit.name}">
-                        <h3>${hit._highlightResult.name.value.replaceAll("em", "mark")}</h3>
+                        <h3>${hit._highlightResult.name.value.replaceAll("em", "mark")} - $${hit.price}</h3>
                         <p>${hit._highlightResult.description.value.replaceAll("em", "mark")}</p>
+                        <p style=${hit.free_shipping ? 'color: green' : 'color: red'}>${hit.free_shipping ? 'Free shipping' : 'Shipping not free'}</p>
                     </li> 
                 `)
                     results.innerHTML = hits.join('')
                 })
+
         })
 
     </script>
