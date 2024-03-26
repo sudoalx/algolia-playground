@@ -3,13 +3,17 @@ const algoliasearch = require('algoliasearch');
 const { Client } = require('pg')
 const _ = require('lodash')
 
-const APP_ID = process.env.APP_ID;
-const API_KEY = process.env.API_KEY;
+const initConfig = async () => {
+    const APP_ID = process.env.APP_ID;
+    const API_KEY = process.env.API_KEY;
 
-const algoliaClient = algoliasearch(APP_ID, API_KEY);
+    const algoliaClient = algoliasearch(APP_ID, API_KEY);
 
-const index = algoliaClient.initIndex('dev_PRODUCTS');
-
+    const index = algoliaClient.initIndex('dev_PRODUCTS');
+    await index.setSettings({
+        attributesForFaceting: ['price_range', 'brand', 'type'],
+    });
+}
 
 // Save from db
 const saveFromDB = async () => {
@@ -88,4 +92,8 @@ const saveMultipleEntriesWithChunks = async () => {
     })
 }
 
-saveMultipleEntriesWithChunks().catch(console.error);
+const main = async () => {
+    initConfig();
+}
+
+main();
